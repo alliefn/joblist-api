@@ -18,19 +18,26 @@ function register(req, res) {
         });
         return;
     }
+        
     const username = req.body.username;
     const password = req.body.password;
 
     // hash the password
     let hashedPassword = bcrypt.hashSync(password, 8);
 
-    // insert the user into the database
-    db.none('INSERT INTO users(username, password) VALUES($1, $2)', [username, hashedPassword]);
-    // Send status and message in JSON
-    res.json({
-        status: 200,
-        message: 'User registered'
-    });
+    // try to insert the user into the database
+    db.none('INSERT INTO users(username, password) VALUES($1, $2)', [username, hashedPassword])
+        .then(function () {
+            res.status(200).send({
+                message: 'User created'
+            });
+        })
+        .catch(function (error) {
+            res.status(400).send({
+                error: error
+            });
+        });
+    return;
 
 }
 
@@ -43,7 +50,7 @@ function login(req, res) {
         });
         return;
     }
-    
+
     const username = req.body.username;
     const password = req.body.password;
 
@@ -65,11 +72,13 @@ function login(req, res) {
                     message: 'User logged in',
                     token: token
                 });
+                return;
             } else {
                 res.json({
                     status: 401,
                     message: 'Incorrect password'
                 });
+                return;
             }
         })
         .catch(function (error) {
@@ -77,6 +86,7 @@ function login(req, res) {
                 status: 401,
                 message: 'User not found'
             });
+            return;
         });
 }
 
@@ -88,6 +98,7 @@ function jobs(req, res) {
             status: 401,
             message: 'No token provided'
         });
+        return;
     } else {
         jwt.verify(token, 'secret', function (error, decoded) {
             if (error) {
@@ -95,6 +106,7 @@ function jobs(req, res) {
                     status: 401,
                     message: 'Invalid token'
                 });
+                return;
             }
         });
     }
@@ -145,6 +157,7 @@ function jobs(req, res) {
                         status: 200,
                         message: 'No jobs found',
                     })
+                    return;
                 }
                 let end = start + 5;
                 // if end is greater than the length of the jobs array, set it to the length of the array
@@ -170,6 +183,7 @@ function jobs(req, res) {
         })
         .catch(function (error) {
             res.json(error);
+            return;
         });
 }
 
@@ -181,6 +195,7 @@ function job(req, res) {
             status: 401,
             message: 'No token provided'
         });
+        return;
     } else {
         jwt.verify(token, 'secret', function (error, decoded) {
             if (error) {
@@ -188,6 +203,7 @@ function job(req, res) {
                     status: 401,
                     message: 'Invalid token'
                 });
+                return;
             }
         });
     }
@@ -203,6 +219,7 @@ function job(req, res) {
         })
         .catch(function (error) {
             res.json(error);
+            return;
         });
 }
 
