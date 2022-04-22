@@ -96,26 +96,104 @@ app.get('/api/jobs', function(req, res) {
     const description = req.query.description || '%';
     const location = req.query.location || '%';
     const full_time = req.query.full_time === 'true';
-    console.log(full_time);
+    const page = req.query.page || -1;
     axios.get('http://dev3.dansmultipro.co.id/api/recruitment/positions.json')
         .then(function(response) {
+            let jobs = response.data;
+            // Only take these columns: id, title, description, location, full_time
+            jobs = jobs.map(function(job) {
+                return {
+                    id: job.id,
+                    title: job.title,
+                    company: job.company,
+                    description: job.description,
+                    location: job.location,
+                    full_time: job.full_time
+                };
+            });
             // Filter the jobs that include the location
-            let jobs = response.data.filter(function(job) {
-                return job.location.toLowerCase().includes(location.toLowerCase());
-            });
-            jobs = jobs.filter(function(job) {
-                return job.description.toLowerCase().includes(description.toLowerCase());
-            });
+            if (location !== '%') {
+                jobs = response.data.filter(function(job) {
+                    return job.location.toLowerCase().includes(location.toLowerCase());
+                });
+            }
+            if (description !== '%') {
+                jobs = jobs.filter(function(job) {
+                    return job.description.toLowerCase().includes(description.toLowerCase());
+                });
+            }
             jobs = jobs.filter(function(job) {
                 // Filter the jobs in which the type is 'Full Time'
                 if (full_time) {
                     return job.type.toLowerCase().includes('full time');
+                } else {
+                    return true;
                 }
             });
+            let pagesJobs = [];
+            if (page > 0) {
+                // Paginate the jobs by 5
+                let start = (page - 1) * 5;
+                // if start is greater than the length of the jobs array, return an empty array
+                if (start > jobs.length) {
+                    res.send({
+                        status: 200,
+                        message: 'No jobs found',
+                    })
+                }
+                let end = start + 5;
+                // if end is greater than the length of the jobs array, set it to the length of the array
+                if (end > jobs.length) {
+                    end = jobs.length;
+                }
+                pagesJobs = jobs.slice(start, end);
+                res.send({
+                    status: 200,
+                    message: 'Jobs retrieved',
+                    totalJobs: pagesJobs.length,
+                    data: pagesJobs
+                })
+            } else {
+                pagesJobs.push(jobs);
+                res.send({
+                    status: 200,
+                    message: 'Jobs retrieved',
+                    totalJobs: jobs.length,
+                    data: pagesJobs
+                })
+            }
+        })
+        .catch(function(error) {
+            res.json(error);
+        });
+});
+
+app.get('/api/job/:id', function(req, res) {
+    // Verify the JWT token, its "Bearer " followed by the token
+    let token = req.headers['authorization'].split(' ')[1];
+    if (!token) {
+        res.json({
+            status: 401,
+            message: 'No token provided'
+        });
+    } else {
+        jwt.verify(token, 'secret', function(error, decoded) {
+            if (error) {
+                res.json({
+                    status: 401,
+                    message: 'Invalid token'
+                });
+            }
+        });
+    }
+    // Take the id from the url
+    const id = req.params.id;
+    axios.get('http://dev3.dansmultipro.co.id/api/recruitment/positions/' + id)
+        .then(function(response) {
             res.send({
                 status: 200,
-                message: 'Jobs retrieved',
-                data: jobs
+                message: 'Job retrieved',
+                data: response.data
             })
         })
         .catch(function(error) {
