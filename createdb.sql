@@ -15,6 +15,8 @@ CREATE DATABASE joblist
 
 -- DROP DATABASE IF EXISTS joblist;
 
+-- SWITCH TO DATABASE joblist AFTER CREATION
+
 CREATE TABLE IF NOT EXISTS public.users
 (
     username character varying COLLATE pg_catalog."default" NOT NULL,
