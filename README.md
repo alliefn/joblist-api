@@ -4,7 +4,10 @@
 Make sure to create .env file in the root directory of the project.
 
 The contents of the .env file should look like this:
+
 `DATABASE_URL=postgres://user:password@host:port/database`
+
+I recommend you to create the database and prepare the database with the createdb.sql file.
 
 Don't forget to `npm install`, then you can run the server with `npm start`.
 
