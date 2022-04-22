@@ -18,10 +18,10 @@ console.log('Connected to the database');
 
 // Default route
 app.get('/', function(req, res) {
-    res.send("<h1>Hello World!</h1>");
+    res.send("<h1>Welcome to the API.</h1>");
 });
 
-app.post('/register', function(req, res) {
+app.post('/api/register', function(req, res) {
     const username = req.body.username;
     const password = req.body.password;
 
@@ -38,7 +38,7 @@ app.post('/register', function(req, res) {
 
 });
 
-app.post('/login', function(req, res) {
+app.post('/api/login', function(req, res) {
     const username = req.body.username;
     const password = req.body.password;
     
@@ -93,12 +93,29 @@ app.get('/api/jobs', function(req, res) {
             }
         });
     }
+    const description = req.query.description || '%';
+    const location = req.query.location || '%';
+    const full_time = req.query.full_time === 'true';
+    console.log(full_time);
     axios.get('http://dev3.dansmultipro.co.id/api/recruitment/positions.json')
         .then(function(response) {
-            res.json({
+            // Filter the jobs that include the location
+            let jobs = response.data.filter(function(job) {
+                return job.location.toLowerCase().includes(location.toLowerCase());
+            });
+            jobs = jobs.filter(function(job) {
+                return job.description.toLowerCase().includes(description.toLowerCase());
+            });
+            jobs = jobs.filter(function(job) {
+                // Filter the jobs in which the type is 'Full Time'
+                if (full_time) {
+                    return job.type.toLowerCase().includes('full time');
+                }
+            });
+            res.send({
                 status: 200,
                 message: 'Jobs retrieved',
-                data: response.data
+                data: jobs
             })
         })
         .catch(function(error) {
