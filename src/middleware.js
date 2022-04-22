@@ -18,7 +18,7 @@ function register(req, res) {
         });
         return;
     }
-        
+
     const username = req.body.username;
     const password = req.body.password;
 
@@ -112,7 +112,14 @@ function jobs(req, res) {
     }
     const description = req.query.description || '%';
     const location = req.query.location || '%';
-    const full_time = req.query.full_time === 'true';
+    let full_time = req.query.full_time || '%';
+    if (full_time === 'true') {
+        full_time = true;
+    } else if (full_time === 'false') {
+        full_time = false;
+    } else {
+        full_time = '%';
+    }
     const page = req.query.page || -1;
     axios.get('http://dev3.dansmultipro.co.id/api/recruitment/positions.json')
         .then(function (response) {
@@ -122,12 +129,13 @@ function jobs(req, res) {
                 return {
                     id: job.id,
                     title: job.title,
+                    type: job.type,
                     company: job.company,
                     description: job.description,
-                    location: job.location,
-                    full_time: job.full_time
+                    location: job.location
                 };
             });
+
             // Filter the jobs that include the location
             if (location !== '%') {
                 jobs = jobs.filter(function (job) {
@@ -139,14 +147,16 @@ function jobs(req, res) {
                     return job.description.toLowerCase().includes(description.toLowerCase());
                 });
             }
-            jobs = jobs.filter(function (job) {
-                // Filter the jobs in which the type is 'Full Time'
-                if (full_time) {
-                    return job.type.toLowerCase().includes('full time');
-                } else {
-                    return true;
-                }
-            });
+            if (full_time !== '%') {
+                jobs = jobs.filter(function (job) {
+                    if (full_time === true) {
+                        return job.type.toLowerCase().includes('full time');
+                    } else if (full_time === false) {
+                        return !job.type.toLowerCase().includes('full time');
+                    }
+                });
+            }
+
             let pagesJobs = [];
             if (page > 0) {
                 // Paginate the jobs by 5
