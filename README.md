@@ -1,5 +1,13 @@
 # joblist-api
 
+## What to prepare
+Make sure to create .env file in the root directory of the project.
+
+The contents of the .env file should look like this:
+`DATABASE_URL=postgres://user:password@host:port/database`
+
+Don't forget to `npm install`, then you can run the server with `npm start`.
+
 ## How to use
 1. `/register`
 
