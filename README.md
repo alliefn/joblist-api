@@ -14,14 +14,14 @@ Don't forget to `npm install`, then you can run the server with `npm start`.
         username: username
         password: password
     
-    Send a POST request to `/register` with the above parameters
+    Send a POST request to `/register` with the above parameters (Use JSON format).
 
 2. `/login`
     
         username: username
         password: password
 
-    Send a POST request to `/login` with the above parameters, and get a token
+    Send a POST request to `/login` with the above parameters, and get a token (Use JSON format).
 
 3. `/jobs`
 
