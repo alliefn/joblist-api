@@ -31,17 +31,20 @@ Don't forget to `npm install`, then you can run the server with `npm start`.
         Authorization: Bearer <token>
 
     Send a GET request to `/jobs` with the token in the header.
+
     There can be 4 parameters:
-        - `page`: the page number, each page contains 5 jobs
-        - `description`: job description
-        - `full_time`: can be `true` or `false`
-        - `location`: job location
+
+        page: the page number, each page contains 5 jobs
+        description: job description
+        full_time: can be `true` or `false`
+        location: job location
 
 4. `/api/jobs/:id`
 
         Authorization: Bearer <token>
 
     Send a GET request to `/jobs/:id` with the token in the header.
+
     It will return the job details with the given id.
 
 ## Author
